@@ -85,14 +85,18 @@ module Agents
           return ["Not Authorized", 401]
       end
 
-      [payload_for(params)].flatten.each do |payload|
-        create_event(payload: payload)
-      end
-
-      if interpolated['response_headers'].presence
-        [interpolated(params)['response'] || 'Event Created', code, "text/plain", interpolated['response_headers'].presence]
+      if params['type'] == "url_verification"
+        [interpolated(params)['response'] || params['challenge'], code]
       else
-        [interpolated(params)['response'] || 'Event Created', code]
+        [payload_for(params)].flatten.each do |payload|
+          create_event(payload: payload)
+        end
+
+        if interpolated['response_headers'].presence
+          [interpolated(params)['response'] || 'Event created', code, "text/plain", interpolated['response_headers'].presence]
+        else
+          [interpolated(params)['response'] || 'Event created', code]
+        end
       end
     end
 
